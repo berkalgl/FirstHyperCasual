@@ -11,6 +11,11 @@ public class PlayerController : MonoBehaviour
     private float _currentRunningSpeed;
     public GameObject runningOnBodyPartPrefab;
     public List<RunningOnBodyPart> bodyParts;
+    private string bodyPartObstacleTag = "AddBodyPart";
+    private string zombieChildName = "Zombie3";
+    private string attackAnimationName = "Z_Attack";
+
+    [SerializeField] private Animator animator;
 
     // Start is called before the first frame update
     void Start()
@@ -48,8 +53,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "AddBodyPart")
+        animator = transform.Find(zombieChildName).GetComponent<Animator>();
+
+        if(other.tag == bodyPartObstacleTag)
         {
+            animator.Play(attackAnimationName,0, 1.0f);
             IncrementBodyPartVolume(0.2f);
             Destroy(other.gameObject);
         }
