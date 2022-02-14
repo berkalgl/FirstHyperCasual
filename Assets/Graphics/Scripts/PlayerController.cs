@@ -9,11 +9,16 @@ public class PlayerController : MonoBehaviour
     public float runningSpeed;
     public float xSpeed;
     private float _currentRunningSpeed;
-    public GameObject runningOnBodyPartPrefab;
-    public List<RunningOnBodyPart> bodyParts;
-    private string bodyPartObstacleTag = "AddBodyPart";
-    private string zombieChildName = "Zombie3";
-    private string attackAnimationName = "Z_Attack";
+    public List<GameObject> addedBodyParts;
+
+    private class Constants
+    {
+        public const string bodyPartObstacleTag = "AddBodyPart";
+        public const string syringeTag = "Syringe";
+        public const string zombieChildName = "Zombie3";
+        public const string attackAnimationName = "Z_Attack";
+        
+    } 
 
     [SerializeField] private Animator animator;
 
@@ -53,44 +58,57 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        animator = transform.Find(zombieChildName).GetComponent<Animator>();
+        animator = transform.Find(Constants.zombieChildName).GetComponent<Animator>();
 
-        if(other.tag == bodyPartObstacleTag)
+        if (other.tag == Constants.bodyPartObstacleTag)
         {
-            animator.Play(attackAnimationName,0, 1.0f);
-            IncrementBodyPartVolume(0.2f);
+            animator.Play(Constants.attackAnimationName, 0, 0.0f);
+            ChangeTheAmountOfBodyParts(true, other.gameObject);
+            Destroy(other.gameObject);
+        } else if (other.tag == Constants.syringeTag) 
+        {
+            ChangeTheAmountOfBodyParts(false, addedBodyParts[addedBodyParts.Count - 1].gameObject);
             Destroy(other.gameObject);
         }
+
     }
 
-    public void IncrementBodyPartVolume(float incrementValue)
+    public void ChangeTheAmountOfBodyParts(bool addOrRemove, GameObject bodyPart)
     {
-        if(bodyParts.Count == 0)
+        if(addedBodyParts.Count < 0)
         {
-            if(incrementValue > 0)
+                //GameOver
+        }else
+        {
+            if(addOrRemove)
             {
-                CreateBodyPart(incrementValue);
+                CreateBodyPart(bodyPart);
             }
             else
             {
-                //GameOver
+                DestroyBodyPart(bodyPart);
             }
-        }else
-        {
-            bodyParts[bodyParts.Count -1].IncrementBodyPartSize(incrementValue);
         }
     }
 
-    public void CreateBodyPart(float value)
+    public void CreateBodyPart(GameObject bodyPart)
     {
-        RunningOnBodyPart createdRunningOnBodyPart = Instantiate(runningOnBodyPartPrefab, transform).GetComponent<RunningOnBodyPart>();
-        bodyParts.Add(createdRunningOnBodyPart);
-        createdRunningOnBodyPart.IncrementBodyPartSize(value);
+        var addedBodyPart = Instantiate(
+            bodyPart, 
+            new Vector3(
+                transform.position.x, 
+                transform.position.y, 
+                addedBodyParts.Count == 0 ? (transform.position.z- 0.5f) : addedBodyParts[addedBodyParts.Count-1].transform.position.z-0.5f
+                ),
+            new Quaternion(0,0,0,0),
+            transform);
+
+        addedBodyParts.Add(addedBodyPart);
     }
 
-    public void DestroyBodyPart(RunningOnBodyPart bodyPart)
+    public void DestroyBodyPart(GameObject bodyPart)
     {   
-        bodyParts.Remove(bodyPart);
-        Destroy(bodyPart.gameObject);
+        addedBodyParts.Remove(bodyPart);
+        Destroy(bodyPart);
     }
 }
