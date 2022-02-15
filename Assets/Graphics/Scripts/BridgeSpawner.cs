@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NewBehaviourScript : MonoBehaviour
+public class BridgeSpawner : MonoBehaviour
 {
     public GameObject startReference, endReference;
     public BoxCollider hiddenPlatform;
@@ -19,8 +19,4 @@ public class NewBehaviourScript : MonoBehaviour
         hiddenPlatform.transform.position = startReference.transform.position + (direction * distance / 2) + (new Vector3(0, -direction.z, direction.y) * hiddenPlatform.size.y / 2);
     }
 
-    void Stop()
-    {
-        
-    }
 }

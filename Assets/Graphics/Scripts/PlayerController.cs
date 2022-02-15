@@ -11,13 +11,20 @@ public class PlayerController : MonoBehaviour
     private float _currentRunningSpeed;
     public List<GameObject> addedBodyParts;
 
+    private bool _isSpawningBridge;
+    public GameObject bridgePiecePrefab;
+
+    private BridgeSpawner _bridgeSpawner;
+    private float _spawningBridgeTimer;
+
     private class Constants
     {
         public const string bodyPartObstacleTag = "AddBodyPart";
         public const string syringeTag = "Syringe";
         public const string zombieChildName = "Zombie3";
         public const string attackAnimationName = "Z_Attack";
-        
+        public const string spawnBridgeStarterTag = "SpawnBridgeStarter";
+        public const string spawnBridgeStopperTag = "SpawnBridgeStopper";
     } 
 
     [SerializeField] private Animator animator;
@@ -34,10 +41,41 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 newPosition = new Vector3(GetXMovement(), transform.position.y, transform.position.z + _currentRunningSpeed * Time.deltaTime);
         transform.position = newPosition;
+
+        if (_isSpawningBridge)
+        {
+            _spawningBridgeTimer -= Time.deltaTime;
+
+            if (_spawningBridgeTimer < 0)
+            {
+                _spawningBridgeTimer = 0.2f;
+
+                //Create prefab piece on the bridge
+                GameObject createdBridgePiece = Instantiate(bridgePiecePrefab);
+                //Destroy the body part
+                ChangeTheAmountOfBodyParts(false);
+
+                //arrange the direction of piece of the bridge
+                Vector3 direction = _bridgeSpawner.endReference.transform.position - _bridgeSpawner.startReference.transform.position;
+                float distance = direction.magnitude;
+                direction = direction.normalized;
+                createdBridgePiece.transform.forward = direction;
+
+                //Check where the character is between start and end reference, make boundary
+                float characterDistance = transform.position.z - _bridgeSpawner.startReference.transform.position.z;
+                characterDistance = Mathf.Clamp(characterDistance, 0, distance);
+
+                //Arrange the position of new piece of the bridge
+                Vector3 newPiecePosition = _bridgeSpawner.startReference.transform.position + direction * characterDistance;
+                newPiecePosition.x = transform.position.x;
+                createdBridgePiece.transform.position = newPiecePosition;
+            }
+        }
     }
 
     private float GetXMovement()
     {
+        //in the x dimension, arrange the character move
         float newX = 0;
         float touchXDelta = 0;
 
@@ -62,32 +100,47 @@ public class PlayerController : MonoBehaviour
 
         if (other.tag == Constants.bodyPartObstacleTag)
         {
+            //meet the requirement when the character encounters a body part.
             animator.Play(Constants.attackAnimationName, 0, 0.0f);
             ChangeTheAmountOfBodyParts(true, other.gameObject);
             Destroy(other.gameObject);
-        } else if (other.tag == Constants.syringeTag) 
+        }
+        else if (other.tag == Constants.syringeTag)
         {
-            ChangeTheAmountOfBodyParts(false, addedBodyParts[addedBodyParts.Count - 1].gameObject);
+            //meet the requirement when the character encounters a syringe.
+            ChangeTheAmountOfBodyParts(false);
             Destroy(other.gameObject);
+        }
+        else if (other.tag == Constants.spawnBridgeStarterTag)
+        {
+            //meet the requirement when the character ends a platform.
+            StartSpawningBridge(other.transform.parent.GetComponent<BridgeSpawner>());
+        }
+        else if (other.tag == Constants.spawnBridgeStopperTag)
+        {
+            //meet the requirement when the character starts a platform.
+            StopSpawningBridge();
         }
 
     }
 
-    public void ChangeTheAmountOfBodyParts(bool addOrRemove, GameObject bodyPart)
+    public void ChangeTheAmountOfBodyParts(bool addOrRemove, GameObject bodyPart=null)
     {
-        if(addedBodyParts.Count < 0)
+
+        if (addOrRemove)
         {
-                //GameOver
-        }else
+            CreateBodyPart(bodyPart);
+        }
+        else
         {
-            if(addOrRemove)
+
+            if (addedBodyParts.Count == 0) 
             {
-                CreateBodyPart(bodyPart);
+                return;
             }
-            else
-            {
-                DestroyBodyPart(bodyPart);
-            }
+
+            bodyPart = addedBodyParts[addedBodyParts.Count - 1].gameObject;
+            DestroyBodyPart(bodyPart);
         }
     }
 
@@ -110,5 +163,15 @@ public class PlayerController : MonoBehaviour
     {   
         addedBodyParts.Remove(bodyPart);
         Destroy(bodyPart);
+    }
+
+    public void StartSpawningBridge(BridgeSpawner spawner)
+    {
+        _bridgeSpawner = spawner;
+        _isSpawningBridge = true;
+    }
+    public void StopSpawningBridge()
+    {
+        _isSpawningBridge = false;
     }
 }
