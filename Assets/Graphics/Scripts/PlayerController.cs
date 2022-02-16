@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     public static PlayerController Current;
     public float maximumX;
+    private float _lastTouchedX;
     public float runningSpeed;
     public float xSpeed;
     private float _currentRunningSpeed;
@@ -17,6 +18,11 @@ public class PlayerController : MonoBehaviour
     private BridgeSpawner _bridgeSpawner;
     private float _spawningBridgeTimer;
 
+    private bool _finished;
+    private float _scoreTimer;
+
+    [SerializeField] public Animator animator;
+
     private class Constants
     {
         public const string bodyPartObstacleTag = "AddBodyPart";
@@ -25,52 +31,71 @@ public class PlayerController : MonoBehaviour
         public const string attackAnimationName = "Z_Attack";
         public const string spawnBridgeStarterTag = "SpawnBridgeStarter";
         public const string spawnBridgeStopperTag = "SpawnBridgeStopper";
+        public const string finishTag = "Finish";
     } 
-
-    [SerializeField] private Animator animator;
 
     // Start is called before the first frame update
     void Start()
     {
         Current = this;
-        _currentRunningSpeed=runningSpeed;
     }
 
     // Update is called once per frame
     void Update()
     {
+        //Check if level started and game active
+        if (LevelController.Current == null || !LevelController.Current.gameActive)
+        {
+            return;
+        }
+
         Vector3 newPosition = new Vector3(GetXMovement(), transform.position.y, transform.position.z + _currentRunningSpeed * Time.deltaTime);
         transform.position = newPosition;
-
+        
         if (_isSpawningBridge)
         {
             _spawningBridgeTimer -= Time.deltaTime;
 
             if (_spawningBridgeTimer < 0)
             {
-                _spawningBridgeTimer = 0.2f;
+                _spawningBridgeTimer = 0.15f;
+                CreateBridgePieces();
 
-                //Create prefab piece on the bridge
-                GameObject createdBridgePiece = Instantiate(bridgePiecePrefab);
-                //Destroy the body part
-                ChangeTheAmountOfBodyParts(false);
-
-                //arrange the direction of piece of the bridge
-                Vector3 direction = _bridgeSpawner.endReference.transform.position - _bridgeSpawner.startReference.transform.position;
-                float distance = direction.magnitude;
-                direction = direction.normalized;
-                createdBridgePiece.transform.forward = direction;
-
-                //Check where the character is between start and end reference, make boundary
-                float characterDistance = transform.position.z - _bridgeSpawner.startReference.transform.position.z;
-                characterDistance = Mathf.Clamp(characterDistance, 0, distance);
-
-                //Arrange the position of new piece of the bridge
-                Vector3 newPiecePosition = _bridgeSpawner.startReference.transform.position + direction * characterDistance;
-                newPiecePosition.x = transform.position.x;
-                createdBridgePiece.transform.position = newPiecePosition;
+                //if finished, increment the score
+                if (_finished)
+                {
+                    _scoreTimer -= Time.deltaTime;
+                    if (_scoreTimer < 0)
+                    {
+                        _scoreTimer = 0.01f;
+                        LevelController.Current.ChangeScore(1);
+                    }
+                }
             }
         }
+    }
+
+    private void CreateBridgePieces()
+    {
+        //Create prefab piece on the bridge
+        GameObject createdBridgePiece = Instantiate(bridgePiecePrefab);
+        //Destroy the body part
+        ChangeTheAmountOfBodyParts(false);
+
+        //arrange the direction of piece of the bridge
+        Vector3 direction = _bridgeSpawner.endReference.transform.position - _bridgeSpawner.startReference.transform.position;
+        float distance = direction.magnitude;
+        direction = direction.normalized;
+        createdBridgePiece.transform.forward = direction;
+
+        //Check where the character is between start and end reference, make boundary
+        float characterDistance = transform.position.z - _bridgeSpawner.startReference.transform.position.z;
+        characterDistance = Mathf.Clamp(characterDistance, 0, distance);
+
+        //Arrange the position of new piece of the bridge
+        Vector3 newPiecePosition = _bridgeSpawner.startReference.transform.position + direction * characterDistance;
+        newPiecePosition.x = transform.position.x;
+        createdBridgePiece.transform.position = newPiecePosition;
     }
 
     private float GetXMovement()
@@ -79,9 +104,17 @@ public class PlayerController : MonoBehaviour
         float newX = 0;
         float touchXDelta = 0;
 
-        if(Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+        if(Input.touchCount > 0 )
         {
-            touchXDelta = Input.GetTouch(0).deltaPosition.x / Screen.width;
+            if (Input.GetTouch(0).phase == TouchPhase.Began)
+            {
+                _lastTouchedX = Input.GetTouch(0).position.x;
+
+            }else if(Input.GetTouch(0).phase == TouchPhase.Moved)
+            {
+                touchXDelta = 5 * (_lastTouchedX - Input.GetTouch(0).position.x) / Screen.width;
+                _lastTouchedX = Input.GetTouch(0).position.x;
+            }
 
         }else if(Input.GetMouseButton(0))
         {
@@ -93,7 +126,10 @@ public class PlayerController : MonoBehaviour
 
         return newX;
     }
-
+    public void ChangeSpeed(float value) 
+    {
+        _currentRunningSpeed = value;
+    }
     private void OnTriggerEnter(Collider other)
     {
         animator = transform.Find(Constants.zombieChildName).GetComponent<Animator>();
@@ -120,6 +156,16 @@ public class PlayerController : MonoBehaviour
         {
             //meet the requirement when the character starts a platform.
             StopSpawningBridge();
+
+            if (_finished)
+                LevelController.Current.FinishGame();
+
+        }
+        else if (other.tag == Constants.finishTag)
+        {
+            //finish
+            _finished = true;
+            StartSpawningBridge(other.transform.parent.GetComponent<BridgeSpawner>());
         }
 
     }
@@ -136,12 +182,30 @@ public class PlayerController : MonoBehaviour
 
             if (addedBodyParts.Count == 0) 
             {
+                //GameOver
+                if (_finished)
+                    LevelController.Current.FinishGame();
+                else
+                    Die();
+
                 return;
             }
 
             bodyPart = addedBodyParts[addedBodyParts.Count - 1].gameObject;
             DestroyBodyPart(bodyPart);
         }
+    }
+    public void Die()
+    {
+        animator.SetBool("Dead", true);
+        //let the character fall when he died
+        //CharacterDead layer = 6, hidden components 7 // Project Settings --> Pyshics --> Layer Matrix Character Dead and Hidden x
+        gameObject.layer = 6;
+
+        Camera.main.transform.SetParent(null);
+
+        LevelController.Current.GameOver();
+        
     }
 
     public void CreateBodyPart(GameObject bodyPart)
