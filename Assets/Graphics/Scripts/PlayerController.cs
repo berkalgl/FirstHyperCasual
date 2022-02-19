@@ -21,7 +21,11 @@ public class PlayerController : MonoBehaviour
     private bool _finished;
     private float _scoreTimer;
 
+    public AudioSource audioSource;
+    public AudioClip gatherAudioClip, dropAudioClip, deadAudioClip;
+
     [SerializeField] public Animator animator;
+    private float _dropSoundTimer;
 
     private class Constants
     {
@@ -79,6 +83,7 @@ public class PlayerController : MonoBehaviour
     {
         //Create prefab piece on the bridge
         GameObject createdBridgePiece = Instantiate(bridgePiecePrefab);
+        PlayBridgeSound();
         //Destroy the body part
         ChangeTheAmountOfBodyParts(false);
 
@@ -98,6 +103,16 @@ public class PlayerController : MonoBehaviour
         createdBridgePiece.transform.position = newPiecePosition;
     }
 
+    private void PlayBridgeSound()
+    {
+        _dropSoundTimer -= Time.deltaTime;
+        if(_dropSoundTimer < 0)
+        {
+            _dropSoundTimer = 0.15f;
+            audioSource.PlayOneShot(dropAudioClip, 0.05f);
+        }
+    }
+
     private float GetXMovement()
     {
         //in the x dimension, arrange the character move
@@ -112,7 +127,7 @@ public class PlayerController : MonoBehaviour
 
             }else if(Input.GetTouch(0).phase == TouchPhase.Moved)
             {
-                touchXDelta = 5 * (_lastTouchedX - Input.GetTouch(0).position.x) / Screen.width;
+                touchXDelta = 5 * (_lastTouchedX + Input.GetTouch(0).position.x) / Screen.width;
                 _lastTouchedX = Input.GetTouch(0).position.x;
             }
 
@@ -137,6 +152,7 @@ public class PlayerController : MonoBehaviour
         if (other.tag == Constants.bodyPartObstacleTag)
         {
             //meet the requirement when the character encounters a body part.
+            audioSource.PlayOneShot(gatherAudioClip, 0.05f);
             animator.Play(Constants.attackAnimationName, 0, 0.0f);
             ChangeTheAmountOfBodyParts(true, other.gameObject);
             Destroy(other.gameObject);
@@ -144,6 +160,7 @@ public class PlayerController : MonoBehaviour
         else if (other.tag == Constants.syringeTag)
         {
             //meet the requirement when the character encounters a syringe.
+            audioSource.PlayOneShot(dropAudioClip, 0.05f);
             ChangeTheAmountOfBodyParts(false);
             Destroy(other.gameObject);
         }
@@ -198,6 +215,7 @@ public class PlayerController : MonoBehaviour
     public void Die()
     {
         animator.SetBool("Dead", true);
+        audioSource.PlayOneShot(deadAudioClip, 0.05f);
         //let the character fall when he died
         //CharacterDead layer = 6, hidden components 7 // Project Settings --> Pyshics --> Layer Matrix Character Dead and Hidden x
         gameObject.layer = 6;

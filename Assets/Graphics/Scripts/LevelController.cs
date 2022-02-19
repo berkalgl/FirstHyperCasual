@@ -9,6 +9,10 @@ public class LevelController : MonoBehaviour
     public static LevelController Current;
     public bool gameActive = false;
 
+    public AudioSource audioSource;
+
+    public AudioClip gameActiveSound, finishMenuSound, gameOverSound;
+
     int currentLevel;
     int score;
 
@@ -23,6 +27,7 @@ public class LevelController : MonoBehaviour
     void Start()
     {
         Current = this;
+        audioSource = Camera.main.transform.GetComponent<AudioSource>();
         //Get current level from the memory
         currentLevel = PlayerPrefs.GetInt("currentLevel");
         if (SceneManager.GetActiveScene().name != "Level " + currentLevel)
@@ -59,6 +64,8 @@ public class LevelController : MonoBehaviour
         PlayerController.Current.ChangeSpeed(PlayerController.Current.runningSpeed);
         startMenu.SetActive(false);
         gameMenu.SetActive(true);
+        audioSource.clip = gameActiveSound;
+        audioSource.Play();
         PlayerController.Current.animator.SetBool("Running", true);
         gameActive = true;
     }
@@ -75,6 +82,8 @@ public class LevelController : MonoBehaviour
 
     public void GameOver()
     {
+        audioSource.clip = gameOverSound;
+        audioSource.Play();
         gameMenu.SetActive(false);
         gameOverMenu.SetActive(true);
         gameActive = false;
@@ -83,6 +92,8 @@ public class LevelController : MonoBehaviour
     public void FinishGame()
     {
         PlayerPrefs.SetInt("currentLevel", currentLevel + 1);
+        audioSource.clip = finishMenuSound;
+        audioSource.Play();
         finishScoreText.text = score.ToString();
         gameMenu.SetActive(false);
         finishMenu.SetActive(true);
