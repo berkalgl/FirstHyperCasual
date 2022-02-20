@@ -8,6 +8,7 @@ TagManager:
   - Syringe
   - SpawnBridgeStarter
   - SpawnBridgeStopper
+  - Coin
   layers:
   - Default
   - TransparentFX

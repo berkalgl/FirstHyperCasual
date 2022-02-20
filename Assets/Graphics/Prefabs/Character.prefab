@@ -117,6 +117,7 @@ MonoBehaviour:
   gatherAudioClip: {fileID: 8300000, guid: 4fb45f9472f5e554c82a5a9c7ba4c739, type: 3}
   dropAudioClip: {fileID: 8300000, guid: 0547b940dba4d964e9e447af1dc0759a, type: 3}
   deadAudioClip: {fileID: 8300000, guid: d8d743b3ccb504e4e955b3a845b3b243, type: 3}
+  coinAudioClip: {fileID: 8300000, guid: 31e30a080c5aa1f49aca3b903e98c770, type: 3}
   animator: {fileID: 8395582457700361310}
 --- !u!1 &8395582455846560275
 GameObject:

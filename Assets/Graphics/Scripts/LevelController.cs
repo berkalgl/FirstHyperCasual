@@ -17,11 +17,12 @@ public class LevelController : MonoBehaviour
     int score;
 
     public GameObject startMenu, gameMenu, gameOverMenu, finishMenu;
-    public Text scoreText, finishScoreText, currentLevelText, nextLevelText;
+    public Text scoreText, finishScoreText, currentLevelText, nextLevelText, startingMenuMoneyText, gameOverMenuMoneyText, finishMenuMoneyText;
     public Slider levelProgressBar;
 
     public float maxDistance;
     public GameObject finishLine;
+    public DailyReward dailyReward;
 
     // Start is called before the first frame update
     void Start()
@@ -36,8 +37,10 @@ public class LevelController : MonoBehaviour
         }
         else
         {
+            dailyReward.InitializeDailyReward();
             currentLevelText.text = (currentLevel + 1).ToString();
             nextLevelText.text = (currentLevel + 2).ToString();
+            UpdateMoneyText();
 
         }
     }
@@ -82,6 +85,7 @@ public class LevelController : MonoBehaviour
 
     public void GameOver()
     {
+        UpdateMoneyText();
         audioSource.clip = gameOverSound;
         audioSource.Play();
         gameMenu.SetActive(false);
@@ -91,6 +95,7 @@ public class LevelController : MonoBehaviour
 
     public void FinishGame()
     {
+        AddMoney(score);
         PlayerPrefs.SetInt("currentLevel", currentLevel + 1);
         audioSource.clip = finishMenuSound;
         audioSource.Play();
@@ -104,5 +109,19 @@ public class LevelController : MonoBehaviour
     {
         score += incrementValue;
         scoreText.text = score.ToString();
+    }
+    public void AddMoney(int incrementValue)
+    {
+        int money = PlayerPrefs.GetInt("money");
+        money = Mathf.Max(0, money + incrementValue);
+        PlayerPrefs.SetInt("money", money);
+        UpdateMoneyText();
+    }
+    public void UpdateMoneyText()
+    {
+        int money = PlayerPrefs.GetInt("money");
+        startingMenuMoneyText.text = money.ToString();
+        gameOverMenuMoneyText.text = money.ToString();
+        finishMenuMoneyText.text = money.ToString();
     }
 }

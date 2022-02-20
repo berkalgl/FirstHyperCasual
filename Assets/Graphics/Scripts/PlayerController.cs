@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
     private float _scoreTimer;
 
     public AudioSource audioSource;
-    public AudioClip gatherAudioClip, dropAudioClip, deadAudioClip;
+    public AudioClip gatherAudioClip, dropAudioClip, deadAudioClip, coinAudioClip;
 
     [SerializeField] public Animator animator;
     private float _dropSoundTimer;
@@ -36,6 +36,8 @@ public class PlayerController : MonoBehaviour
         public const string spawnBridgeStarterTag = "SpawnBridgeStarter";
         public const string spawnBridgeStopperTag = "SpawnBridgeStopper";
         public const string finishTag = "Finish";
+        public const string coinTag = "Coin";
+        public const string unTagged = "Untagged";
     } 
 
     // Start is called before the first frame update
@@ -152,24 +154,29 @@ public class PlayerController : MonoBehaviour
         if (other.tag == Constants.bodyPartObstacleTag)
         {
             //meet the requirement when the character encounters a body part.
+            other.tag = Constants.unTagged;
             audioSource.PlayOneShot(gatherAudioClip, 0.05f);
             animator.Play(Constants.attackAnimationName, 0, 0.0f);
             ChangeTheAmountOfBodyParts(true, other.gameObject);
             Destroy(other.gameObject);
         }
-        else if (other.tag == Constants.syringeTag)
+
+        if (other.tag == Constants.syringeTag)
         {
             //meet the requirement when the character encounters a syringe.
+            other.tag = Constants.unTagged;
             audioSource.PlayOneShot(dropAudioClip, 0.05f);
             ChangeTheAmountOfBodyParts(false);
             Destroy(other.gameObject);
         }
-        else if (other.tag == Constants.spawnBridgeStarterTag)
+        
+        if (other.tag == Constants.spawnBridgeStarterTag)
         {
             //meet the requirement when the character ends a platform.
             StartSpawningBridge(other.transform.parent.GetComponent<BridgeSpawner>());
         }
-        else if (other.tag == Constants.spawnBridgeStopperTag)
+        
+        if (other.tag == Constants.spawnBridgeStopperTag)
         {
             //meet the requirement when the character starts a platform.
             StopSpawningBridge();
@@ -178,11 +185,20 @@ public class PlayerController : MonoBehaviour
                 LevelController.Current.FinishGame();
 
         }
-        else if (other.tag == Constants.finishTag)
+        
+        if (other.tag == Constants.finishTag)
         {
             //finish
             _finished = true;
             StartSpawningBridge(other.transform.parent.GetComponent<BridgeSpawner>());
+        }
+        
+        if (other.tag == Constants.coinTag)
+        {
+            other.tag = Constants.unTagged;
+            audioSource.PlayOneShot(coinAudioClip, 0.05f);
+            LevelController.Current.ChangeScore(10);
+            Destroy(other.gameObject);
         }
 
     }
