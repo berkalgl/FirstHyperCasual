@@ -38,10 +38,12 @@ public class LevelController : MonoBehaviour
         else
         {
             PlayerController.Current = GameObject.FindObjectOfType<PlayerController>();
+            GameObject.FindObjectOfType<MarketItemController>().InitializeMarketItemController();
             dailyReward.InitializeDailyReward();
             currentLevelText.text = (currentLevel + 1).ToString();
             nextLevelText.text = (currentLevel + 2).ToString();
             UpdateMoneyText();
+            AddMoney(3000);
 
         }
     }

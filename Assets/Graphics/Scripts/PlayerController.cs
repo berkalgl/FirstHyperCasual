@@ -11,22 +11,17 @@ public class PlayerController : MonoBehaviour
     public float xSpeed;
     private float _currentRunningSpeed;
     public List<GameObject> addedBodyParts;
-
     private bool _isSpawningBridge;
     public GameObject bridgePiecePrefab;
-
     private BridgeSpawner _bridgeSpawner;
     private float _spawningBridgeTimer;
-
     private bool _finished;
     private float _scoreTimer;
-
     public AudioSource audioSource;
-    public AudioClip gatherAudioClip, dropAudioClip, deadAudioClip, coinAudioClip, buyAudioClip;
-
+    public AudioClip gatherAudioClip, dropAudioClip, deadAudioClip, coinAudioClip, buyItemAudioClip, equipItemAudioClip, unequipItemAudioClip;
     [SerializeField] public Animator animator;
     private float _dropSoundTimer;
-
+    public List<GameObject> wearablePlaces;
     private class Constants
     {
         public const string bodyPartObstacleTag = "AddBodyPart";
@@ -39,7 +34,6 @@ public class PlayerController : MonoBehaviour
         public const string coinTag = "Coin";
         public const string unTagged = "Untagged";
     } 
-
     // Update is called once per frame
     void Update()
     {
@@ -74,7 +68,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
     private void CreateBridgePieces()
     {
         //Create prefab piece on the bridge
@@ -98,7 +91,6 @@ public class PlayerController : MonoBehaviour
         newPiecePosition.x = transform.position.x;
         createdBridgePiece.transform.position = newPiecePosition;
     }
-
     private void PlayBridgeSound()
     {
         _dropSoundTimer -= Time.deltaTime;
@@ -108,7 +100,6 @@ public class PlayerController : MonoBehaviour
             audioSource.PlayOneShot(dropAudioClip, 0.05f);
         }
     }
-
     private float GetXMovement()
     {
         //in the x dimension, arrange the character move
@@ -196,7 +187,6 @@ public class PlayerController : MonoBehaviour
         }
 
     }
-
     public void ChangeTheAmountOfBodyParts(bool addOrRemove, GameObject bodyPart=null)
     {
 
@@ -235,7 +225,6 @@ public class PlayerController : MonoBehaviour
         LevelController.Current.GameOver();
         
     }
-
     public void CreateBodyPart(GameObject bodyPart)
     {
         var addedBodyPart = Instantiate(
@@ -250,13 +239,11 @@ public class PlayerController : MonoBehaviour
 
         addedBodyParts.Add(addedBodyPart);
     }
-
     public void DestroyBodyPart(GameObject bodyPart)
     {   
         addedBodyParts.Remove(bodyPart);
         Destroy(bodyPart);
     }
-
     public void StartSpawningBridge(BridgeSpawner spawner)
     {
         _bridgeSpawner = spawner;

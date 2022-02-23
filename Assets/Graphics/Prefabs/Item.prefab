@@ -120,7 +120,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1544444239192906066}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4861905730028536020}
+        m_TargetAssemblyTypeName: MarketItem, Assembly-CSharp
+        m_MethodName: EquipItemButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &649827525942864639
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,6 +144,7 @@ GameObject:
   - component: {fileID: 2278866832763998757}
   - component: {fileID: 1544427681631020092}
   - component: {fileID: 7940887815869863883}
+  - component: {fileID: 4861905730028536020}
   m_Layer: 5
   m_Name: Item
   m_TagString: Untagged
@@ -200,6 +213,26 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4861905730028536020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 649827525942864639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd11e743eb607b940bf5e223be07ca56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  id: 0
+  categoryId: 0
+  price: 0
+  priceText: {fileID: 8691697196046258316}
+  buyButton: {fileID: 5576714580728204790}
+  equipButton: {fileID: 8606304620402833873}
+  unequipButton: {fileID: 7677060651806126936}
+  marketItemPrefab: {fileID: 0}
 --- !u!1 &2123908514400881929
 GameObject:
   m_ObjectHideFlags: 0
@@ -553,7 +586,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8228034957767972247}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4861905730028536020}
+        m_TargetAssemblyTypeName: MarketItem, Assembly-CSharp
+        m_MethodName: UnequipItemButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6688626855534256321
 GameObject:
   m_ObjectHideFlags: 0
@@ -829,4 +874,16 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8859171337968446230}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4861905730028536020}
+        m_TargetAssemblyTypeName: MarketItem, Assembly-CSharp
+        m_MethodName: BuyButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
