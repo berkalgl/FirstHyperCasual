@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
     private float _scoreTimer;
 
     public AudioSource audioSource;
-    public AudioClip gatherAudioClip, dropAudioClip, deadAudioClip, coinAudioClip;
+    public AudioClip gatherAudioClip, dropAudioClip, deadAudioClip, coinAudioClip, buyAudioClip;
 
     [SerializeField] public Animator animator;
     private float _dropSoundTimer;
@@ -39,12 +39,6 @@ public class PlayerController : MonoBehaviour
         public const string coinTag = "Coin";
         public const string unTagged = "Untagged";
     } 
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        Current = this;
-    }
 
     // Update is called once per frame
     void Update()

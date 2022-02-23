@@ -37,6 +37,7 @@ public class LevelController : MonoBehaviour
         }
         else
         {
+            PlayerController.Current = GameObject.FindObjectOfType<PlayerController>();
             dailyReward.InitializeDailyReward();
             currentLevelText.text = (currentLevel + 1).ToString();
             nextLevelText.text = (currentLevel + 2).ToString();
