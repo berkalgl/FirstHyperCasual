@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,25 +9,21 @@ public class LevelController : MonoBehaviour
 {
     public static LevelController Current;
     public bool gameActive = false;
-
     public AudioSource audioSource;
-
     public AudioClip gameActiveSound, finishMenuSound, gameOverSound;
-
     int currentLevel;
-    int score;
-
+    public int score;
     public GameObject startMenu, gameMenu, gameOverMenu, finishMenu;
     public Text scoreText, finishScoreText, currentLevelText, nextLevelText, startingMenuMoneyText, gameOverMenuMoneyText, finishMenuMoneyText;
     public Slider levelProgressBar;
-
     public float maxDistance;
     public GameObject finishLine;
     public DailyReward dailyReward;
-
+    public Button rewardedAdButton, soundOnButton, soundOffButton;
     // Start is called before the first frame update
     void Start()
     {
+        InitializeLanguageTexts();
         Current = this;
         audioSource = Camera.main.transform.GetComponent<AudioSource>();
         //Get current level from the memory
@@ -38,6 +35,22 @@ public class LevelController : MonoBehaviour
         currentLevelText.text = (currentLevel + 1).ToString();
         nextLevelText.text = (currentLevel + 2).ToString();
         UpdateMoneyText();
+        
+        if(AdController.Current.IsInterstitialAdReady())
+        {
+            AdController.Current.interstitial.Show();
+        }
+    }
+
+    private void InitializeLanguageTexts()
+    {
+        GameObject[] parentsInScene = this.gameObject.scene.GetRootGameObjects();
+        foreach(GameObject parent in parentsInScene)
+        {
+            TextObject[] textObjectsInParent = parent.GetComponentsInChildren<TextObject>(true);
+            foreach(TextObject textObject in textObjectsInParent)
+                textObject.InitTextObject();
+        }
     }
 
     // Update is called once per frame
@@ -55,6 +68,7 @@ public class LevelController : MonoBehaviour
 
     public void StartLevel()
     {
+        AdController.Current.bannerView.Hide();
         //Calculate the max distance between character and finish line
         maxDistance = finishLine.transform.position.z - PlayerController.Current.transform.position.z;
 
@@ -70,7 +84,7 @@ public class LevelController : MonoBehaviour
 
     public void RestartLevel()
     {
-        LevelLoader.Current.ChangeLevel(SceneManager.GetActiveScene().name);
+        LevelLoader.Current.ChangeLevel(this.gameObject.scene.name);
     }
 
     public void LoadNextLevel()
@@ -80,6 +94,11 @@ public class LevelController : MonoBehaviour
 
     public void GameOver()
     {
+        if(AdController.Current.IsInterstitialAdReady())
+        {
+            AdController.Current.interstitial.Show();
+        }
+        AdController.Current.bannerView.Show();
         UpdateMoneyText();
         audioSource.clip = gameOverSound;
         audioSource.Play();
@@ -90,6 +109,12 @@ public class LevelController : MonoBehaviour
 
     public void FinishGame()
     {
+        if(AdController.Current.rewardedAd.IsLoaded())
+            rewardedAdButton.gameObject.SetActive(true);
+        else
+            rewardedAdButton.gameObject.SetActive(true);
+
+        AdController.Current.bannerView.Show();
         AddMoney(score);
         PlayerPrefs.SetInt("currentLevel", currentLevel + 1);
         audioSource.clip = finishMenuSound;
@@ -118,5 +143,19 @@ public class LevelController : MonoBehaviour
         startingMenuMoneyText.text = money.ToString();
         gameOverMenuMoneyText.text = money.ToString();
         finishMenuMoneyText.text = money.ToString();
+    }
+    public void ShowRewardedAd()
+    {
+        if(AdController.Current.rewardedAd.IsLoaded())
+        {
+            AdController.Current.rewardedAd.Show();
+        }
+    }
+    public void TurnTheSoundOnandOff(bool active)
+    {
+        AudioListener.volume = active ? 1 : 0;
+        //Camera.main.GetComponent<AudioListener>().enabled = active;
+        soundOnButton.gameObject.SetActive(active);
+        soundOffButton.gameObject.SetActive(!active);
     }
 }

@@ -10,6 +10,8 @@ public class LevelLoader : MonoBehaviour
     void Start()
     {
         Current = this;
+        GameObject.FindObjectOfType<AdController>().InitializeAds();
+        PlayerPrefs.SetInt("currentLevel", 0);
         ChangeLevel("Level " + PlayerPrefs.GetInt("currentLevel"));
     }
 
