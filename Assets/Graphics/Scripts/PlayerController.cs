@@ -10,7 +10,6 @@ public class PlayerController : MonoBehaviour
     public float runningSpeed;
     public float xSpeed;
     private float _currentRunningSpeed;
-    public List<GameObject> addedBodyParts;
     private bool _isSpawningBridge;
     public GameObject bridgePiecePrefab;
     private BridgeSpawner _bridgeSpawner;
@@ -22,9 +21,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public Animator animator;
     private float _dropSoundTimer;
     public List<GameObject> wearablePlaces;
+    public GameObject bodyPartOnCharacterPrefab;
     private class Constants
     {
         public const string bodyPartObstacleTag = "AddBodyPart";
+        public const string bodyPartOnCharacter = "BodyPartOnCharacter";
         public const string syringeTag = "Syringe";
         public const string zombieChildName = "Zombie3";
         public const string attackAnimationName = "Z_Attack";
@@ -143,7 +144,7 @@ public class PlayerController : MonoBehaviour
             other.tag = Constants.unTagged;
             audioSource.PlayOneShot(gatherAudioClip, 0.05f);
             animator.Play(Constants.attackAnimationName, 0, 0.0f);
-            ChangeTheAmountOfBodyParts(true, other.gameObject);
+            ChangeTheAmountOfBodyParts(true);
             Destroy(other.gameObject);
         }
 
@@ -191,14 +192,33 @@ public class PlayerController : MonoBehaviour
     public void ChangeTheAmountOfBodyParts(bool addOrRemove, GameObject bodyPart=null)
     {
 
+        var createdBodyPart = transform.Find(Constants.bodyPartOnCharacter);
+
         if (addOrRemove)
         {
-            CreateBodyPart(bodyPart);
+            if(createdBodyPart != null)
+            {
+                createdBodyPart.gameObject.transform.localScale = createdBodyPart.transform.localScale + new Vector3(0.1f,0.1f,0.1f);
+            }
+            else
+            {
+                var addedBodyPart = Instantiate(
+                    bodyPartOnCharacterPrefab, 
+                    new Vector3(
+                        transform.localPosition.x, 
+                        transform.localPosition.y + 0.25f, 
+                        transform.localPosition.z - 0.3f
+                        ),
+                    new Quaternion(0,0,0,0),
+                    transform);
+                
+                addedBodyPart.name = Constants.bodyPartOnCharacter;
+            }
         }
         else
         {
 
-            if (addedBodyParts.Count == 0) 
+            if (createdBodyPart == null || createdBodyPart.transform.localScale == new Vector3(0.3f,0.3f,0.3f)) 
             {
                 //GameOver
                 if (_finished)
@@ -209,8 +229,7 @@ public class PlayerController : MonoBehaviour
                 return;
             }
 
-            bodyPart = addedBodyParts[addedBodyParts.Count - 1].gameObject;
-            DestroyBodyPart(bodyPart);
+            createdBodyPart.transform.localScale = createdBodyPart.transform.localScale - new Vector3(0.1f,0.1f,0.1f);
         }
     }
     public void Die()
@@ -225,25 +244,6 @@ public class PlayerController : MonoBehaviour
 
         LevelController.Current.GameOver();
         
-    }
-    public void CreateBodyPart(GameObject bodyPart)
-    {
-        var addedBodyPart = Instantiate(
-            bodyPart, 
-            new Vector3(
-                transform.position.x, 
-                transform.position.y, 
-                addedBodyParts.Count == 0 ? (transform.position.z- 0.5f) : addedBodyParts[addedBodyParts.Count-1].transform.position.z-0.5f
-                ),
-            new Quaternion(0,0,0,0),
-            transform);
-
-        addedBodyParts.Add(addedBodyPart);
-    }
-    public void DestroyBodyPart(GameObject bodyPart)
-    {   
-        addedBodyParts.Remove(bodyPart);
-        Destroy(bodyPart);
     }
     public void StartSpawningBridge(BridgeSpawner spawner)
     {
