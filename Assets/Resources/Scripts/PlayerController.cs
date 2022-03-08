@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
 
             if (_spawningBridgeTimer < 0)
             {
-                _spawningBridgeTimer = 0.13f;
+                _spawningBridgeTimer = 0.14f;
                 CreateBridgePieces();
 
                 //if finished, increment the score
@@ -242,6 +242,7 @@ public class PlayerController : MonoBehaviour
         //let the character fall when he died
         //CharacterDead layer = 6, hidden components 7 // Project Settings --> Pyshics --> Layer Matrix Character Dead and Hidden x
         gameObject.layer = 6;
+        gameObject.transform.Find("Zombie3").gameObject.layer = 6;
 
         Camera.main.transform.SetParent(null);
 
