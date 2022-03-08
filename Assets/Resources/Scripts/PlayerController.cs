@@ -241,8 +241,12 @@ public class PlayerController : MonoBehaviour
         audioSource.PlayOneShot(deadAudioClip, 0.05f);
         //let the character fall when he died
         //CharacterDead layer = 6, hidden components 7 // Project Settings --> Pyshics --> Layer Matrix Character Dead and Hidden x
+
         gameObject.layer = 6;
-        gameObject.transform.Find("Zombie3").gameObject.layer = 6;
+        foreach (Transform trans in gameObject.transform.GetComponentsInChildren<Transform>(true))
+        {
+            trans.gameObject.layer = 6;
+        }
 
         Camera.main.transform.SetParent(null);
 
