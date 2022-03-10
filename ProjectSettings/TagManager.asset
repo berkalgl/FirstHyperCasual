@@ -9,6 +9,8 @@ TagManager:
   - SpawnBridgeStarter
   - SpawnBridgeStopper
   - Coin
+  - BlackHole
+  - Platform
   layers:
   - Default
   - TransparentFX

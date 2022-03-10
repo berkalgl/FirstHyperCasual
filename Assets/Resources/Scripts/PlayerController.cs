@@ -34,6 +34,8 @@ public class PlayerController : MonoBehaviour
         public const string finishTag = "Finish";
         public const string coinTag = "Coin";
         public const string unTagged = "Untagged";
+        public const string blackHole = "BlackHole";
+        public const string platform = "Platform";
     } 
     // Update is called once per frame
     void Update()
@@ -187,8 +189,12 @@ public class PlayerController : MonoBehaviour
             LevelController.Current.ChangeScore(10);
             Destroy(other.gameObject);
         }
+        if (other.tag == Constants.blackHole)
+        {
+            Die();
+        }
 
-    }
+}
     public void ChangeTheAmountOfBodyParts(bool addOrRemove, GameObject bodyPart=null)
     {
 
@@ -239,6 +245,14 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetBool("Dead", true);
         audioSource.PlayOneShot(deadAudioClip, 0.05f);
+        SetGameObjectsLayers();
+        Camera.main.transform.SetParent(null);
+        LevelController.Current.GameOver();
+        
+    }
+    private void SetGameObjectsLayers()
+    {
+
         //let the character fall when he died
         //CharacterDead layer = 6, hidden components 7 // Project Settings --> Pyshics --> Layer Matrix Character Dead and Hidden x
 
@@ -248,10 +262,21 @@ public class PlayerController : MonoBehaviour
             trans.gameObject.layer = 6;
         }
 
-        Camera.main.transform.SetParent(null);
+        var platforms = GameObject.FindGameObjectsWithTag(Constants.platform);
 
-        LevelController.Current.GameOver();
-        
+        if (platforms != null)
+        {
+            foreach (GameObject platform in platforms)
+            {
+                platform.layer = 7;
+
+                foreach (Transform trans in platform.transform.GetComponentsInChildren<Transform>(true))
+                {
+                    trans.gameObject.layer = 7;
+                }
+
+            }
+        }
     }
     public void StartSpawningBridge(BridgeSpawner spawner)
     {
