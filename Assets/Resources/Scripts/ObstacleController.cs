@@ -21,6 +21,12 @@ public class ObstacleController : MonoBehaviour
                 transform);
         }
 
+        //instantiate coin
+        Instantiate(GetPrefab(4),
+            new Vector3(Random.Range(startXIndex, stopXIndex), 0.75f, Random.Range(startZIndex, stopZIndex)),
+            new Quaternion(0, 0, 0, 0),
+            transform);
+
         float randomXIndexForStop, tempStartXIndex, tempStopXIndex;
         while(startZIndex <= stopZIndex)
         {
@@ -58,14 +64,17 @@ public class ObstacleController : MonoBehaviour
         //1 --> stopping obstacle syringe
         //2 --> random feeding parts
         //3 --> black hole to die
+        //4 --> coin
         switch (obstacleType)
         {
             case 1:
                 return (GameObject)Resources.Load("Prefabs/Syringe_1", typeof(GameObject));
             case 2:
-                return (GameObject)Resources.Load("Prefabs/bodypart_0" + Random.Range(1, 9), typeof(GameObject));
+                return (GameObject)Resources.Load("Prefabs/BodyParts/bodypart_0" + Random.Range(1, 9), typeof(GameObject));
             case 3:
                 return (GameObject)Resources.Load("Prefabs/BlackHolePrefab", typeof(GameObject));
+            case 4:
+                return (GameObject)Resources.Load("Prefabs/Coin", typeof(GameObject));
             default:
                 return null;
         }
