@@ -30,6 +30,7 @@ public class ObstacleController : MonoBehaviour
         float randomXIndexForStop, tempStartXIndex, tempStopXIndex;
         while(startZIndex <= stopZIndex)
         {
+            
             randomXIndexForStop = GetRandomIndex(startXIndex, stopXIndex);
             tempStartXIndex = startXIndex;
             tempStopXIndex = stopXIndex;
