@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "646216460731",
+    "firebase_url": "https://firsthypercasual-default-rtdb.firebaseio.com",
+    "project_id": "firsthypercasual",
+    "storage_bucket": "firsthypercasual.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646216460731:android:54d7a6b614e94ee7a23c9e",
+        "android_client_info": {
+          "package_name": "com.livabyte.firsthypercasual"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "646216460731-bgcihquclbus0eku5ngr616e3r0jof4o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDrJmYmMIvksNej2k0Ojia41cWQU6H0wQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "646216460731-bgcihquclbus0eku5ngr616e3r0jof4o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "646216460731-ddb69vdd3qu0fkbudtki80jb77djgbdc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.livabyte.firsthypercasual"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
