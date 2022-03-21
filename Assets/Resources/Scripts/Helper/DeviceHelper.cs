@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DeviceHelper : MonoBehaviour
+public class DeviceHelper
 {
     public static string GetDeviceId()
     {
@@ -23,18 +23,18 @@ public class DeviceHelper : MonoBehaviour
 
     public static string GetDeviceType()
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        return "ANDROID";
-#elif UNITY_IPHONE
-        return "IOS";
-#else
-        return "EDITOR";
-#endif
+        #if UNITY_ANDROID && !UNITY_EDITOR
+            return "ANDROID";
+        #elif UNITY_IPHONE
+            return "IOS";
+        #else
+            return "EDITOR";
+        #endif
     }
 
     public static void Vibrate(long ms = 250, bool overridePermission = false)
     {
-        if (!overridePermission && Helper.DeviceCache.GetOptionVibration() == 0)
+        if (!overridePermission && DeviceCache.GetOptionVibration() == 0)
             return;
 
         if (IsAndroid())
@@ -51,11 +51,11 @@ public class DeviceHelper : MonoBehaviour
 
     private static bool IsAndroid()
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
+        #if UNITY_ANDROID && !UNITY_EDITOR
             return true;
-#else
-        return false;
-#endif
+        #else
+            return false;
+        #endif
 
     }
 }
