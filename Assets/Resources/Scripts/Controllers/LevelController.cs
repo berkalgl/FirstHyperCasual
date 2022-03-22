@@ -21,18 +21,13 @@ public class LevelController : MonoBehaviour
     public GameObject finishLine;
     public DailyReward dailyReward;
     public Button rewardedAdButton, soundOnButton, soundOffButton;
-    private Firebase.Database.DatabaseReference deviceCurrentRef, deviceLevelsRef;
+    private Firebase.Database.DatabaseReference deviceCurrentRef;
     // Start is called before the first frame update
     void Start()
     {
         //init
         deviceCurrentRef = Firebase.Database.FirebaseDatabase.DefaultInstance.GetReference($"DeviceCurrent/{DeviceHelper.GetDeviceId()}");
         deviceCurrentRef.KeepSynced(true);
-
-        deviceLevelsRef = Firebase.Database.FirebaseDatabase.DefaultInstance.GetReference($"DeviceLevels/{DeviceHelper.GetDeviceId()}");
-        deviceLevelsRef.KeepSynced(true);
-
-        StartCoroutine(SetDatabaseData());
 
         InitializeLanguageTexts();
         Current = this;
@@ -54,32 +49,17 @@ public class LevelController : MonoBehaviour
         }
         AdController.Current.bannerView.Show();
     }
-    private IEnumerator SetDatabaseData()
+    private IEnumerator SetDatabaseData(int score)
     {
         var t1 = deviceCurrentRef.GetValueAsync();
         yield return new WaitUntil(() => t1.IsCompleted);
 
         var currentRef = JsonUtility.FromJson<DeviceCurrent>(t1.Result.GetRawJsonValue());
-        currentRef.levelNo = currentLevel;
+        currentRef.levelNo = currentLevel + 1;
         currentRef.totalPoint += score; 
 
         var t2 = deviceCurrentRef.SetRawJsonValueAsync(JsonUtility.ToJson(currentRef));
         yield return new WaitUntil(() => t2.IsCompleted);
-
-        var currentLevelRef = deviceLevelsRef.Child(currentLevel.ToString());
-        currentLevelRef.KeepSynced(true);
-
-        var t3 = currentLevelRef.GetValueAsync();
-        yield return new WaitUntil(() => t3.IsCompleted);
-
-        var deviceLevel = JsonUtility.FromJson<DeviceLevel>(t3.Result.GetRawJsonValue());
-        deviceLevel.EndLevel(score);
-        var t4 = currentLevelRef.SetRawJsonValueAsync(JsonUtility.ToJson(deviceLevel));
-        yield return new WaitUntil(() => t4.IsCompleted);
-
-        var nextLevelRef = deviceLevelsRef.Child(currentRef.levelNo.ToString());
-        var t5 = nextLevelRef.SetRawJsonValueAsync(JsonUtility.ToJson(DeviceLevel.Default()));
-        yield return new WaitUntil(() => t5.IsCompleted);
 
     }
     private void InitializeLanguageTexts()
@@ -99,7 +79,6 @@ public class LevelController : MonoBehaviour
         if (gameActive)
         {
             //Update progress bar
-            PlayerController player = PlayerController.Current;
             float distance = finishLine.transform.position.z - PlayerController.Current.transform.position.z;
 
             levelProgressBar.value = 1 - (distance / maxDistance);
@@ -132,7 +111,6 @@ public class LevelController : MonoBehaviour
     {
         //LevelLoader.Current.ChangeLevel("Level " + (currentLevel + 1).ToString());
         LevelLoader.Current.LoadLevelScene();
-        StartCoroutine(SetDatabaseData());
     }
 
     public void GameOver()
@@ -155,8 +133,9 @@ public class LevelController : MonoBehaviour
         if(AdController.Current.rewardedAd.IsLoaded())
             rewardedAdButton.gameObject.SetActive(true);
         else
-            rewardedAdButton.gameObject.SetActive(true);
+            rewardedAdButton.gameObject.SetActive(false);
 
+        StartCoroutine(SetDatabaseData(score));
         AdController.Current.bannerView.Show();
         AddMoney(score);
         PlayerPrefs.SetInt("currentLevel", currentLevel + 1);
