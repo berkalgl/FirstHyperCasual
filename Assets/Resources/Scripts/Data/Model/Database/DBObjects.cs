@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public class DBObjects : MonoBehaviour
+namespace Assets.Scripts.Data.Model.Database
 {
     [Serializable]
     public class DeviceCurrent
